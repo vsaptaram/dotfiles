@@ -96,7 +96,7 @@
 ;; C-x r j a - to apply a window configuration
 ;; but it also stores files and not just pane configuration
 ;; checkout emacs-purpose - can integrate with perspective also
-(set-register ?c (cons 'file "~/.emacs.d/init.el"))
+(set-register ?c (cons 'file "~/.emacs.el"))
 (set-register ?i (cons 'file "~/Dropbox/org_files/in.org"))
 (set-register ?r (cons 'file "~/Dropbox/org_files/repository.org"))
 (set-register ?p (cons 'file "~/Dropbox/org_files/projects.org"))
