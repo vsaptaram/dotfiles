@@ -552,6 +552,14 @@
 ;; 	  #'TeX-revert-document-buffer)
 
 ;; helm-bibtex
+(use-package helm-bibtex
+  :ensure t
+  :config
+  (setq helm-bibtex-bibliography '("/home/vsaptaram/Dropbox/zotero/bibliography.bib")
+	bibtex-completion-bibliography '("/home/vsaptaram/Dropbox/zotero/bibliography.bib")
+	bibtex-completion-pdf-field "file"
+	bibtex-completion-notes-path "/home/vsaptaram/Dropbox/org_files/research_notes/notes.org"))
+
 ;; (setq reftex-default-bibliography '("~/Dropbox/zotero-other_files/biblio.bib") )
 ;; (setq helm-bibtex-bibliography '("~/Dropbox/zotero-other_files/biblio.bib"))
 ;; (setq bibtex-completion-bibliography
