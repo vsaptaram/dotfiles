@@ -173,7 +173,6 @@
 ;; (require 'auto-complete-config)
 ;; (ac-config-default)e
 
-
 ;;; eshell
 
 ;; shell switcher
@@ -555,10 +554,10 @@
 (use-package helm-bibtex
   :ensure t
   :config
-  (setq helm-bibtex-bibliography '("/home/vsaptaram/Dropbox/zotero/bibliography.bib")
-	bibtex-completion-bibliography '("/home/vsaptaram/Dropbox/zotero/bibliography.bib")
+  (setq helm-bibtex-bibliography '("~/Dropbox/zotero/bibliography.bib")
+	bibtex-completion-bibliography '("~/Dropbox/zotero/bibliography.bib")
 	bibtex-completion-pdf-field "file"
-	bibtex-completion-notes-path "/home/vsaptaram/Dropbox/org_files/research_notes/notes.org"))
+	bibtex-completion-notes-path "~/Dropbox/org_files/research_notes/notes.org"))
 
 ;; (setq reftex-default-bibliography '("~/Dropbox/zotero-other_files/biblio.bib") )
 ;; (setq helm-bibtex-bibliography '("~/Dropbox/zotero-other_files/biblio.bib"))
