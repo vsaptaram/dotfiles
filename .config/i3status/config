@@ -55,5 +55,5 @@ disk "/" {
 volume master {
         format = "♪: %volume"
         format_muted = "♪: muted (%volume)"
-        device = "pulse:alsa_output.pci-0000_00_14.2.analog-stereo"
+        device = "pulse:0"
 }
