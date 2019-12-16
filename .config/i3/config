@@ -45,6 +45,8 @@ bindsym $mod+Shift+q kill
 # rofi
 # bindsym $mod+x exec --no-startup-id rofi -show drun
 bindsym $mod+d exec --no-startup-id "rofi -combi-modi window,drun -show combi -modi combi -show-icons"
+bindsym $mod+c exec --no-startup-id "rofi -show calc -modi calc -no-show-match -no-sort"
+bindsym $mod+s exec --no-startup-id "rofi -show ssh"
 
 # change focus
 bindsym $mod+j focus left
@@ -157,6 +159,9 @@ bindsym $mod+r mode "resize"
 
 # nm applet
 exec --no-startup-id nm-applet
+
+# bluetooth
+exec --no-startup-id blueman-applet
 
 # dropbox
 exec --no-startup-id dropbox start
