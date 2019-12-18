@@ -319,20 +319,20 @@
 
 ;; install pdf-tools
 ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
-(use-package pdf-tools
-  :ensure t
-  :init
-  (pdf-tools-install))
+;; (use-package pdf-tools
+;;   :ensure t
+;;   :init
+;;   (pdf-tools-install))
 
-;; auctex
-(use-package tex
-  :ensure auctex
-  :init
-  (setq TeX-source-correlate-method 'synctex
-        TeX-view-program-selection '((output-pdf "PDF Tools"))
-        TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
-        TeX-source-correlate-start-server t) ;; not sure if neccessary
-  (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
+;; ;; auctex
+;; (use-package tex
+;;   :ensure auctex
+;;   :init
+;;   (setq TeX-source-correlate-method 'synctex
+;;         TeX-view-program-selection '((output-pdf "PDF Tools"))
+;;         TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
+;;         TeX-source-correlate-start-server t) ;; not sure if neccessary
+;;   (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer))
 
 
 ;; helm-bibtex
