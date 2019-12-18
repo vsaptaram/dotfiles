@@ -3,11 +3,16 @@
 
 ;;; load package archives
 (load "package")
-(package-initialize)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 
-;; This is only needed once, near the top of the file
+(package-initialize)
+
+;; Bootstrap `use-package'
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 (eval-when-compile
   (require 'use-package))
 
@@ -25,7 +30,7 @@
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
   :ensure t
-  :config
+  :init
   (exec-path-from-shell-initialize))
 
 ;;; start up
@@ -107,11 +112,11 @@
 ;;; themes
 (use-package spacemacs-common
     :ensure spacemacs-theme
-    :config (load-theme 'spacemacs-dark t))
+    :init (load-theme 'spacemacs-dark t))
 
 ;; (use-package spacemacs-theme
 ;;   :ensure t
-;;   :config
+;;   :init
 ;;   (load-theme 'spacemacs-dark t))
 ;; (load-theme 'spacemacs-dark t)
 
@@ -122,7 +127,7 @@
 (use-package spaceline
   :ensure t
   ;; :defer t
-  :config
+  :init
   (spaceline-emacs-theme))
 ;; (require 'spaceline-config)
 ;; (spaceline-spacemacs-theme)
@@ -130,14 +135,14 @@
 ;;; Windows
 (use-package window-numbering
   :ensure t
-  :config (window-numbering-mode 1))
+  :init (window-numbering-mode 1))
 ;; (window-numbering-mode 1)
 
 ;; windmove
 (use-package windmove
   ;; :defer 4
   :ensure t
-  :config
+  :init
   ;; TODO: use command key on Mac
   (windmove-default-keybindings 'shift)
   ;; wrap around at edges
@@ -153,7 +158,7 @@
 (blink-cursor-mode 0)
 (use-package beacon
   :ensure t
-  :config (beacon-mode 1))
+  :init (beacon-mode 1))
 
 ; multi line edit
 (use-package multiple-cursors
@@ -166,7 +171,9 @@
 
 ;;; autopair
 (use-package autopair
-  :ensure t)
+  :ensure t
+  :init
+  (autopair-global-mode))
 ;; (require 'autopair)
 
 ;;; auto complete
@@ -193,7 +200,7 @@
   :ensure t
   :after (helm helm-projectile)
   :bind (("C-c p". projectile-command-map))
-  :config
+  :init
   (projectile-global-mode)
   (setq projectile-completion-system 'helm)
   (setq projectile-switch-project-action 'helm-projectile))
@@ -206,13 +213,13 @@
          ("M-y" . helm-show-kill-ring)
          ("C-x b" . helm-mini)
          ("C-h a" . helm-apropos))
-  :config
+  :init
   (helm-mode 1)
   (setq helm-M-x-fuzzy-match t))
 
 (use-package helm-projectile
   :ensure t
-  :config
+  :init
   (helm-projectile-on))
 
 ;; (require 'helm)
@@ -238,7 +245,7 @@
 (use-package perspective
   :ensure t
   ;; :commands persp-mode
-  :config
+  :init
   (persp-mode))
 
 ;;; magit
@@ -253,51 +260,95 @@
 (use-package neotree
   :ensure t
   :bind (("<f8>". neotree-toggle))
-  :config
+  :init
   (setq neo-smart-open t))
 
 ;; (require 'neotree)
 ;; (global-set-key [f8] 'neotree-toggle)
 ;; (setq neo-smart-open t)
 
-;;; elpy
-;; (use-package elpy
+;;; company autocomplete
+;; (use-package company               
+;;   :ensure t
+;;   :defer t
+;;   :init
+;;   (global-company-mode)
+;;   :config
+;;   (progn
+;;     ;; Use Company for completion
+;;     (bind-key [remap completion-at-point] #'company-complete company-mode-map)
+
+;;     (setq company-show-numbers t)
+;;      ;; company-tooltip-align-annotations t
+;;           ;; Easy navigation to candidates with M-<n>
+          
+;;     ;; (setq company-dabbrev-downcase nil))
+;;   :diminish company-mode)
+
+;; (use-package company
 ;;   :ensure t
 ;;   :init
-;;   (elpy-enable))
+;;   (global-company-mode))
 
-;; config from http://rakan.me/emacs/python-dev-with-emacs-and-pyenv/
+;;; elpy
 (use-package elpy
   :ensure t
   :init
-  (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
-  :bind (:map elpy-mode-map
-	      ("<M-left>" . nil)
-	      ("<M-right>" . nil)
-	      ("<M-S-left>" . elpy-nav-indent-shift-left)
-	      ("<M-S-right>" . elpy-nav-indent-shift-right)
-	      ("M-." . elpy-goto-definition)
-	      ("M-," . pop-tag-mark))
-  :config
-  (setq elpy-rpc-backend "jedi"
-	elpy-rpc-virtualenv-path 'current))
+  (elpy-enable)
+  (setenv "WORKON_HOME" "~/Dropbox/virtualenvs")
+  (setq elpy-rpc-python-command "python3"
+	elpy-rpc-virtualenv-path 'current)
+  (setq python-shell-interpreter "ipython"
+	python-shell-interpreter-args "-i --simple-prompt"))
+  ;; (setq python-shell-interpreter "jupyter"
+  ;;     python-shell-interpreter-args "console --simple-prompt"
+  ;;     python-shell-prompt-detect-failure-warning nil)
+  ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
+  ;; 	       "jupyter"))
 
-(use-package python
-  :ensure t
-  :mode ("\\.py" . python-mode)
-  :config
-  (setq python-indent-offset 4)
-  (elpy-enable))
+;; config from http://rakan.me/emacs/python-dev-with-emacs-and-pyenv/
+;; (use-package elpy
+;;   :ensure t
+;;   :init
+;;   (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
+;;   :bind (:map elpy-mode-map
+;; 	      ("<M-left>" . nil)
+;; 	      ("<M-right>" . nil)
+;; 	      ("<M-S-left>" . elpy-nav-indent-shift-left)
+;; 	      ("<M-S-right>" . elpy-nav-indent-shift-right)
+;; 	      ("M-." . elpy-goto-definition)
+;; 	      ("M-," . pop-tag-mark))
+;;   :init
+;;   (setq elpy-rpc-backend "jedi"
+;; 	elpy-rpc-virtualenv-path 'current
+;;         elpy-rpc-python-command "python3")
+;;   (setenv "WORKON_HOME" "~/Dropbox/virtualenvs"))
 
-(use-package pyenv-mode
-  :ensure t
-  :init
-  (add-to-list 'exec-path "~/.pyenv/shims")
-  (setenv "WORKON_HOME" "~/.pyenv/versions/")
-  :config
-  (pyenv-mode)
-  :bind
-  ("C-x p e" . pyenv-activate-current-project))
+;; (setq python-shell-interpreter "jupyter")
+
+;; (setq python-shell-interpreter "jupyter"
+;;       python-shell-interpreter-args "console --simple-prompt"
+;;       python-shell-prompt-detect-failure-warning nil)
+;; (add-to-list 'python-shell-completion-native-disabled-interpreters
+;; 	       "jupyter")
+
+;; (use-package python
+;;   :ensure t
+;;   :mode ("\\.py" . python-mode)
+;;   :init
+;;   (setq python-indent-offset 4)
+;;   (elpy-enable))
+
+;;; uninstalling pyenv
+;; (use-package pyenv-mode
+;;   :ensure t
+;;   :init
+;;   (add-to-list 'exec-path "~/.pyenv/shims")
+;;   (setenv "WORKON_HOME" "~/.pyenv/versions/")
+;;   :config
+;;   (pyenv-mode)
+;;   :bind
+;;   ("C-x p e" . pyenv-activate-current-project))
 
 ;; (defun pyenv-activate-current-project ()
 ;;   "Automatically activates pyenv version if .python-version file exists."
@@ -309,17 +360,39 @@
 ;;           (pyenv-mode-set pyenv-current-version)
 ;;           (message (concat "Setting virtualenv to " pyenv-current-version))))))
 
-(defun pyenv-activate-current-project ()
-  "Automatically activates pyenv version if .python-version file exists."
-  (interactive)
-  (f-traverse-upwards
-   (lambda (path)
-     (message path)
-     (let ((pyenv-version-path (f-expand ".python-version" path)))
-       (if (f-exists? pyenv-version-path)
-            (let ((pyenv-current-version (s-trim (f-read-text pyenv-version-path 'utf-8))))
-              (pyenv-mode-set pyenv-current-version)
-              (message (concat "Setting virtualenv to " pyenv-current-version))))))))
+;; (defun pyenv-activate-current-project ()
+;;   "Automatically activates pyenv version if .python-version file exists."
+;;   (interactive)
+;;   (f-traverse-upwards
+;;    (lambda (path)
+;;      (message path)
+;;      (let ((pyenv-version-path (f-expand ".python-version" path)))
+;;        (if (f-exists? pyenv-version-path)
+;;             (let ((pyenv-current-version (s-trim (f-read-text pyenv-version-path 'utf-8))))
+;;               (pyenv-mode-set pyenv-current-version)
+;;               (message (concat "Setting virtualenv to " pyenv-current-version))))))))
+
+;; ;; set global mode
+;; (defvar pyenv-current-version nil nil)
+
+;; (defun pyenv-init()
+;;   "Initialize pyenv's current version to the global one."
+;;   (let ((global-pyenv (replace-regexp-in-string "\n" "" (shell-command-to-string "pyenv global"))))
+;;     (message (concat "Setting pyenv version to " global-pyenv))
+;;     (pyenv-mode-set global-pyenv)
+;;     (setq pyenv-current-version global-pyenv)))
+
+;; (add-hook 'after-init-hook 'pyenv-init)
+
+;; (use-package load-relative
+;;   :ensure t)
+
+;; (use-package loc-changes
+;;   :ensure t)
+
+;; (use-package realgud
+;;   :ensure realgud)
+
 
 ;; (elpy-enable)
 ;; ;; (setq elpy-rpc-backend "jedi")
@@ -347,6 +420,13 @@
 ;;       (define-key ein:notebook-mode-map (kbd "<M-S-up>") 'ein:worksheet-move-cell-up)
 ;;       (define-key ein:notebook-mode-map (kbd "<M-S-down>") 'ein:worksheet-move-cell-down))))
 
+(require 'ein-notebook)
+(use-package ein
+  :ensure t
+  :init
+  (setq ein:use-auto-complete t
+	ein:console-args '("--simple-prompt")))
+
 ;; (persp-mode)
 ;; (require 'persp-projectile)
 ;;; not working
@@ -369,7 +449,7 @@
 
 ;; (use-package helm-org-rifle
 ;;   :ensure t
-;;   :config
+;;   :init
 ;;   (setq helm-org-rifle-show-path t))
 
 ;; (require 'helm-org-rifle)
@@ -426,12 +506,12 @@
 (setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM")
 
 ;; org habit tracking
-(add-to-list 'org-modules "org-habit")
-(require 'org-habit)
-(setq org-habit-graph-column 80)
-(setq org-habit-show-habits-only-for-today nil)
-(setq org-habit-preceding-days 42)
-(setq org-habit-following-days 1)
+; (add-to-list 'org-modules "org-habit")
+; (require 'org-habit)
+; (setq org-habit-graph-column 80)
+; (setq org-habit-show-habits-only-for-today nil)
+; (setq org-habit-preceding-days 42)
+; (setq org-habit-following-days 1)
 
 ;; org mobile staging area
 (setq org-directory "~/Dropbox/org_files")
@@ -446,6 +526,26 @@
       org-agenda-start-on-weekday nil
       org-agenda-span 7)
 
+;; org habit tracking
+; (add-to-list 'org-modules "org-habit")
+; (require 'org-habit)
+; (setq org-habit-graph-column 80)
+; (setq org-habit-show-habits-only-for-today nil)
+; (setq org-habit-preceding-days 42)
+; (setq org-habit-following-days 1)
+
+;; org mobile staging area
+(setq org-directory "~/Dropbox/org_files")
+(setq org-mobile-inbox-for-pull "~/Dropbox/org_files/mobileorg.org")
+(setq org-mobile-directory "~/Dropbox/")
+(setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+
+;; org agenda customize variables
+(setq org-agenda-show-all-dates t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-skip-scheduled-if-done t
+      org-agenda-start-on-weekday nil
+      org-agenda-span 7)
 
 ;; (require 'magic-latex-buffer)
 
@@ -508,7 +608,7 @@
 ;; Enable plantuml-mode for PlantUML files
 (use-package plantuml-mode
   :ensure t
-  :config
+  :init
   (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode)))
                ;; 'org-src-lang-modes '("plantuml" . plantuml)))
 
@@ -524,7 +624,7 @@
 ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
 (use-package pdf-tools
   :ensure t
-  :config
+  :init
   (pdf-tools-install))
 
 ;; (pdf-tools-install)
@@ -532,7 +632,7 @@
 ;; auctex
 (use-package tex
   :ensure auctex
-  :config
+  :init
   (setq TeX-source-correlate-method 'synctex
         TeX-view-program-selection '((output-pdf "PDF Tools"))
         TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
@@ -553,7 +653,7 @@
 ;; helm-bibtex
 (use-package helm-bibtex
   :ensure t
-  :config
+  :init
   (setq helm-bibtex-bibliography '("~/Dropbox/zotero/bibliography.bib")
 	bibtex-completion-bibliography '("~/Dropbox/zotero/bibliography.bib")
 	bibtex-completion-pdf-field "file"
@@ -601,7 +701,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (helm-projectile window-numbering use-package spacemacs-theme spaceline projectile pdf-tools neotree multiple-cursors magit helm-org-rifle beacon autopair))))
+    (realgud-ipdb realgud helm-projectile window-numbering use-package spacemacs-theme spaceline projectile pdf-tools neotree multiple-cursors magit helm-org-rifle beacon autopair))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
