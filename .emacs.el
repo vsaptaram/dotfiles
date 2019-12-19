@@ -135,7 +135,7 @@
   :after (helm helm-projectile)
   :bind (("C-c p". projectile-command-map))
   :init
-  (projectile-global-mode)
+  (projectile-mode +1)
   (setq projectile-completion-system 'helm)
   (setq projectile-switch-project-action 'helm-projectile))
 
@@ -181,34 +181,45 @@
 ;; python environment
 (use-package elpy
   :ensure t
-  ; :defer t
   :init
   (elpy-enable)
-  ; (advice-add 'python-mode :before 'elpy-enable)
+  (setenv "WORKON_HOME" "~/Dropbox/virtualenvs")
   (setq elpy-rpc-python-command "python3"
-		elpy-rpc-virtualenv-path 'current)
-  ; (setq python-shell-interpreter "jupyter"
-  ;     	python-shell-interpreter-args "console --simple-prompt"
-  ;     	python-shell-prompt-detect-failure-warning nil)
-	; (add-to-list 'python-shell-completion-native-disabled-interpreters "jupyter")
-  (setq python-shell-interpreter "ipython"
-      	python-shell-interpreter-args "-i --simple-prompt")
-  (setenv "WORKON_HOME" "~/Dropbox/virtualenvs"))
+        elpy-rpc-virtualenv-path 'current)
+  ;; (setq python-shell-interpreter "ipython"
+  ;;      	python-shell-interpreter-args "-i --simple-prompt")
+  (setq python-shell-interpreter "jupyter"
+        python-shell-interpreter-args "console --simple-prompt"
+        python-shell-prompt-detect-failure-warning nil)
+  (add-to-list 'python-shell-completion-native-disabled-interpreters
+               "jupyter"))
 
-(use-package ein
-	:ensure t
-	:init)
+;; (use-package ein
+;; 	:ensure t
+;; 	:init)
 
-(require 'ein)
-(require 'ein-notebook)
-(require 'ein-subpackages)
+;; (require 'ein)
+;; (require 'ein-notebook)
+;; (require 'ein-subpackages)
 
 (use-package flycheck
 	:ensure t
 	:init
-	(when (require 'flycheck nil t)
-		(setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-		(add-hook 'elpy-mode-hook 'flycheck-mode)))
+        (global-flycheck-mode))
+	;; (when (require 'flycheck nil t)
+	;; 	(setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+	;; 	(add-hook 'elpy-mode-hook 'flycheck-mode)))
+
+;;; auto complete interface
+;; (use-package auto-complete
+;;   :ensure t
+;;   :init
+;;   (ac-config-default))
+
+(use-package company
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-company-mode))
 
 ;;; org
 ;;; org mode
