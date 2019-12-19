@@ -179,20 +179,20 @@
   (setq neo-smart-open t))
 
 ;; python environment
-(use-package elpy
-  :ensure t
-  :init
-  (elpy-enable)
-  (setenv "WORKON_HOME" "~/Dropbox/virtualenvs")
-  (setq elpy-rpc-python-command "python3"
-        elpy-rpc-virtualenv-path 'current)
-  ;; (setq python-shell-interpreter "ipython"
-  ;;      	python-shell-interpreter-args "-i --simple-prompt")
-  (setq python-shell-interpreter "jupyter"
-        python-shell-interpreter-args "console --simple-prompt"
-        python-shell-prompt-detect-failure-warning nil)
-  (add-to-list 'python-shell-completion-native-disabled-interpreters
-               "jupyter"))
+;; (use-package elpy
+;;   :ensure t
+;;   :init
+;;   (elpy-enable)
+;;   (setenv "WORKON_HOME" "~/Dropbox/virtualenvs")
+;;   (setq elpy-rpc-python-command "python3"
+;;         elpy-rpc-virtualenv-path 'current)
+;;   ;; (setq python-shell-interpreter "ipython"
+;;   ;;      	python-shell-interpreter-args "-i --simple-prompt")
+;;   (setq python-shell-interpreter "jupyter"
+;;         python-shell-interpreter-args "console --simple-prompt"
+;;         python-shell-prompt-detect-failure-warning nil)
+;;   (add-to-list 'python-shell-completion-native-disabled-interpreters
+;;                "jupyter"))
 
 ;; (use-package ein
 ;; 	:ensure t
