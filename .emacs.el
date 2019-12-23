@@ -25,6 +25,8 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 
+(setq visible-bell nil)
+
 ;;; start up
 (setq inhibit-splash-screen t
       initial-scratch-message nil
@@ -50,8 +52,9 @@
 
 ;; better defaults
 (use-package better-defaults
-	:ensure t)
+  :ensure t)
 
+(setq tab-always-indent 'complete)
 
 ;;; Windows
 (use-package window-numbering
@@ -83,8 +86,9 @@
 
 ;;; set font
 ;; (set-frame-font "Fira Code 10")
+;; (set-frame-font "Hack 10")
 ;; (set-frame-font "DejaVu Sans Mono-10" nil t)
-(set-frame-font "Source Code Pro-10" nil t)
+(set-frame-font "Source Code Pro-11" nil t)
 ;; (set-frame-font "Cousine-10" nil t)
 
 ; display class/function cursor is in
@@ -128,6 +132,11 @@
   :init
   (autopair-global-mode))
 
+;;; company for auto complete
+(use-package company
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-company-mode))
 
 ;;; projectile
 (use-package projectile
@@ -213,11 +222,6 @@
 ;;   :ensure t
 ;;   :init
 ;;   (ac-config-default))
-
-(use-package company
-  :ensure t
-  :config
-  (add-hook 'after-init-hook 'global-company-mode))
 
 ;;; org
 ;;; org mode
