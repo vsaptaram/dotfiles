@@ -1,7 +1,5 @@
+;;; emacs.el
 (require 'package)
-
-;; Adds the Melpa archive to the list of available repositories
-
 (add-to-list 'package-archives
 	     '("melpa" . "http://melpa.org/packages/") t)
 
@@ -205,9 +203,14 @@
 ;; 	:ensure t
 ;; 	:init)
 
-;; (require 'ein)
-;; (require 'ein-notebook)
-;; (require 'ein-subpackages)
+(require 'ein)
+(require 'ein-notebook)
+(require 'ein-subpackages)
+;; (setq ein:use-auto-complete t)
+;; (setq ein:complete-on-dot t)
+(setq ein:completion-backend 'ein:use-company-backend)
+(setq ein:use-auto-complete-superpack nil)
+(setq ein:notebook-modes '(ein:notebook-multilang-mode ein:notebook-python-mode ein:notebook-plain-mode))
 
 (use-package flycheck
 	:ensure t
@@ -367,7 +370,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (use-package))))
+ '(package-selected-packages (quote (ein use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
