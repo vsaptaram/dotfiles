@@ -86,7 +86,7 @@
 ;; (set-frame-font "Fira Code 10")
 ;; (set-frame-font "Hack 10")
 ;; (set-frame-font "DejaVu Sans Mono-10" nil t)
-(set-frame-font "Source Code Pro-11" nil t)
+(set-frame-font "Source Code Pro-10" nil t)
 ;; (set-frame-font "Cousine-10" nil t)
 
 ; display class/function cursor is in
@@ -310,12 +310,12 @@
       org-agenda-span 7)
 
 ;; org habit tracking
-; (add-to-list 'org-modules "org-habit")
-; (require 'org-habit)
-; (setq org-habit-graph-column 80)
-; (setq org-habit-show-habits-only-for-today nil)
-; (setq org-habit-preceding-days 42)
-; (setq org-habit-following-days 1)
+(add-to-list 'org-modules "org-habit")
+(require 'org-habit)
+(setq org-habit-graph-column 80)
+(setq org-habit-show-habits-only-for-today nil)
+(setq org-habit-preceding-days 42)
+(setq org-habit-following-days 1)
 
 ;; org mobile staging area
 (setq org-directory "~/Dropbox/org_files")
