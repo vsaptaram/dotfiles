@@ -199,9 +199,8 @@
   (add-to-list 'python-shell-completion-native-disabled-interpreters
                "jupyter"))
 
-;; (use-package ein
-;; 	:ensure t
-;; 	:init)
+(use-package ein
+  :ensure t)
 
 (require 'ein)
 (require 'ein-notebook)
