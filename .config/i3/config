@@ -9,7 +9,11 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
+# set modifier key
 set $mod Mod4
+
+# remap Capslock to control, double shift for Capslock
+exec --no-startup-id setxkbmap -option 'ctrl:nocaps,shift:both_capslock_cancel'
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -45,8 +49,10 @@ bindsym $mod+Shift+q kill
 # rofi
 # bindsym $mod+x exec --no-startup-id rofi -show drun
 bindsym $mod+d exec --no-startup-id "rofi -combi-modi window,drun -show combi -modi combi -show-icons"
+# https://github.com/svenstaro/rofi-calc
 bindsym $mod+c exec --no-startup-id "rofi -show calc -modi calc -no-show-match -no-sort"
 bindsym $mod+z exec --no-startup-id "rofi -show ssh"
+# https://github.com/erebe/greenclip
 bindsym $mod+x exec --no-startup-id rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
 
 # change focus
@@ -166,6 +172,9 @@ exec --no-startup-id blueman-applet
 
 # dropbox
 exec --no-startup-id dropbox start
+
+# clipboard - greenclip
+exec --no-startup-id greenclip daemon
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5% #increase sound volume
