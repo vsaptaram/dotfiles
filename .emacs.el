@@ -10,6 +10,9 @@
 (when (not package-archive-contents)
   (package-refresh-contents))
 
+;; run as server
+(server-start)
+
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -86,7 +89,7 @@
 ;; (set-frame-font "Fira Code 10")
 ;; (set-frame-font "Hack 10")
 ;; (set-frame-font "DejaVu Sans Mono-10" nil t)
-(set-frame-font "Source Code Pro-10" nil t)
+(set-frame-font "Source Code Pro-11" nil t)
 ;; (set-frame-font "Cousine-10" nil t)
 
 ; display class/function cursor is in
@@ -188,7 +191,7 @@
   :ensure t
   :init
   (elpy-enable)
-  (setenv "WORKON_HOME" "~/Dropbox/virtualenvs")
+  (setenv "WORKON_HOME" "~/Dropbox/virtualenvs/helmholtz_venvs")
   (setq elpy-rpc-python-command "python3"
         elpy-rpc-virtualenv-path 'current)
   ;; (setq python-shell-interpreter "ipython"
@@ -199,8 +202,8 @@
   (add-to-list 'python-shell-completion-native-disabled-interpreters
                "jupyter"))
 
-(use-package ein
-  :ensure t)
+;; (use-package ein
+;;   :ensure t)
 
 (require 'ein)
 (require 'ein-notebook)
@@ -208,7 +211,7 @@
 ;; (setq ein:use-auto-complete t)
 ;; (setq ein:complete-on-dot t)
 (setq ein:completion-backend 'ein:use-company-backend)
-(setq ein:use-auto-complete-superpack nil)
+;; (setq ein:use-auto-complete-superpack nil)
 (setq ein:notebook-modes '(ein:notebook-multilang-mode ein:notebook-python-mode ein:notebook-plain-mode))
 
 (use-package flycheck
@@ -313,7 +316,7 @@
 (require 'org-habit)
 (setq org-habit-graph-column 80)
 (setq org-habit-show-habits-only-for-today nil)
-(setq org-habit-preceding-days 42)
+(setq org-habit-preceding-days 14)
 (setq org-habit-following-days 1)
 
 ;; org mobile staging area
