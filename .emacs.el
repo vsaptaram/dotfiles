@@ -191,7 +191,7 @@
   :ensure t
   :init
   (elpy-enable)
-  (setenv "WORKON_HOME" "~/Dropbox/virtualenvs")
+  (setenv "WORKON_HOME" "~/virtual_envs")
   (setq elpy-rpc-python-command "python3"
         elpy-rpc-virtualenv-path 'current)
   ;; (setq python-shell-interpreter "ipython"
@@ -202,8 +202,8 @@
   (add-to-list 'python-shell-completion-native-disabled-interpreters
                "jupyter"))
 
-(use-package ein
-  :ensure t)
+;; (use-package ein
+;;   :ensure t)
 
 (require 'ein)
 (require 'ein-notebook)
@@ -316,7 +316,7 @@
 (require 'org-habit)
 (setq org-habit-graph-column 80)
 (setq org-habit-show-habits-only-for-today nil)
-(setq org-habit-preceding-days 42)
+(setq org-habit-preceding-days 14)
 (setq org-habit-following-days 1)
 
 ;; org mobile staging area
