@@ -63,14 +63,20 @@
   :init (window-numbering-mode 1))
 
 ;; windmove
+;; windmove
 (use-package windmove
   ;; :defer 4
   :ensure t
   :init
   ;; TODO: use command key on Mac
-  (windmove-default-keybindings 'shift)
+  ;; (windmove-default-keybindings "<f2>")
   ;; wrap around at edges
-  (setq windmove-wrap-around t))
+  (setq windmove-wrap-around t)
+  :bind
+  (("<f2> <right>" . windmove-right)
+   ("<f2> <left>" . windmove-left)
+   ("<f2> <up>" . windmove-up)
+   ("<f2> <down>" . windmove-down)))
 
 ;; winner mode to restore window config
 (use-package winner
