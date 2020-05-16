@@ -113,12 +113,12 @@
 ;; but it also stores files and not just pane configuration
 ;; checkout emacs-purpose - can integrate with perspective also
 (set-register ?c (cons 'file "~/.emacs.el"))
-(set-register ?i (cons 'file "~/Dropbox/org_files/in.org"))
-(set-register ?r (cons 'file "~/Dropbox/org_files/repository.org"))
-(set-register ?p (cons 'file "~/Dropbox/org_files/projects.org"))
-(set-register ?s (cons 'file "~/Dropbox/org_files/someday.org"))
-(set-register ?m (cons 'file "~/Dropbox/org_files/mobileorg.org"))
-(set-register ?w (cons 'file "~/Dropbox/org_files/msd.org"))
+(set-register ?i (cons 'file "/data/Dropbox/org_files/in.org"))
+(set-register ?r (cons 'file "/data/Dropbox/org_files/repository.org"))
+(set-register ?p (cons 'file "/data/Dropbox/org_files/projects.org"))
+(set-register ?s (cons 'file "/data/Dropbox/org_files/someday.org"))
+(set-register ?m (cons 'file "/data/Dropbox/org_files/mobileorg.org"))
+(set-register ?w (cons 'file "/data/Dropbox/org_files/msd.org"))
 
 ;;; cursors
 (blink-cursor-mode 0)
@@ -195,7 +195,7 @@
   :ensure t
   :init
   (elpy-enable)
-  (setenv "WORKON_HOME" "~/virtual_envs")
+  (setenv "WORKON_HOME" "~/virtualenvs")
   (setq elpy-rpc-python-command "python3"
         elpy-rpc-virtualenv-path 'current)
   ;; (setq python-shell-interpreter "ipython"
@@ -247,7 +247,7 @@
 (global-set-key (kbd "C-c o h") 'helm-org-in-buffer-headings)
 
 (global-set-key (kbd "C-c c") 'org-capture)
-(setq org-default-notes-file "~/Dropbox/org_files/in.org")
+(setq org-default-notes-file "/data/Dropbox/org_files/in.org")
 
 ;; (use-package helm-org-rifle
 ;;   :ensure t
@@ -268,17 +268,17 @@
 (setq org-agenda-show-log t
       org-agenda-window-setup 'current-window)
 
-(setq org-agenda-files (list "~/Dropbox/org_files/projects.org"
-                             "~/Dropbox/org_files/in.org" 
-                             "~/Dropbox/org_files/msd.org"))
+(setq org-agenda-files (list "/data/Dropbox/org_files/projects.org"
+                             "/data/Dropbox/org_files/in.org"
+                             "/data/Dropbox/org_files/msd.org"))
 
 ; refile targets
 ;; (setq org-refile-targets '((nil :maxlevel . 5)
 ;;                            (org-agenda-files :maxlevel . 5)))
-(setq org-refile-targets '(("~/Dropbox/org_files/projects.org" :maxlevel . 3)
-                           ("~/Dropbox/org_files/repository.org" :level . 3)
-                           ("~/Dropbox/org_files/someday.org" :level . 3)
-                           ("~/Dropbox/org_files/msd.org" :maxlevel . 5)))
+(setq org-refile-targets '(("/data/Dropbox/org_files/projects.org" :maxlevel . 3)
+                           ("/data/Dropbox/org_files/repository.org" :level . 3)
+                           ("/data/Dropbox/org_files/someday.org" :level . 3)
+                           ("/data/Dropbox/org_files/msd.org" :maxlevel . 5)))
 
 ; refile with filenames/path instead of being flat
 (setq org-refile-use-outline-path 'file)
