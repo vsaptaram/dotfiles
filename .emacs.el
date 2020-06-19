@@ -1,7 +1,8 @@
-;;; emacs.el
+;; .emacs.el
 (require 'package)
+
 (add-to-list 'package-archives
-	     '("melpa" . "http://melpa.org/packages/") t)
+             '("melpa" . "http://melpa.org/packages/") t)
 
 ;; Initializes the package infrastructure
 (package-initialize)
@@ -17,52 +18,76 @@
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
-
 (eval-when-compile
   (require 'use-package))
+(setq use-package-always-ensure t)
 
-;;; appearances
+;; remap Cmd/Opt for Apple keyboards
+(if (eq system-type 'darwin)
+    (setq mac-command-modifier 'meta
+          mac-option-modifier 'super
+          mac-control-modifier 'control))
+
+;; copy path variables from shell to emacs
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns))
+  :ensure t
+  :init
+  (exec-path-from-shell-initialize))
+
+;; encoding
+(prefer-coding-system 'utf-8)
+(setq coding-system-for-read 'utf-8)
+(setq coding-system-for-write 'utf-8)
+
+;; appearances
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-
 (setq visible-bell nil)
 
-;;; start up
+;; async mode
+
+;; start up
 (setq inhibit-splash-screen t
       initial-scratch-message nil
       initial-major-mode 'org-mode)
 
-;;; themes
+;; themes
 (use-package spacemacs-common
     :ensure spacemacs-theme
-    :init (load-theme 'spacemacs-dark t))
+    :init
+    (load-theme 'spacemacs-dark t)
+    (setq spacemacs-theme-org-agenda-height nil)
+    (setq spacemacs-theme-org-height nil))
 
-;;; mode line
+
+;; mode line
 (use-package spaceline
   :ensure t
   ;; :defer t
   :init
-  (spaceline-emacs-theme))
+  (setq powerline-default-separator 'arrow-fade)
+  :config
+  (require 'spaceline-config)
+  (spaceline-spacemacs-theme))
 
-;;; remap Cmd/Opt for Apple keyboards
-(if (eq system-type 'darwin)
-    (setq mac-command-modifier 'meta
-	  mac-option-modifier 'super
-	  mac-control-modifier 'control))
+;; font
+;; (set-frame-font "Fira Code 10")
+;; (set-frame-font "Hack 10")
+;; (set-frame-font "DejaVu Sans Mono-10" nil t)
+(set-frame-font "Source Code Pro-11" nil t)
+;; (set-frame-font "Cousine-10" nil t)
 
 ;; better defaults
 (use-package better-defaults
   :ensure t)
 
-(setq tab-always-indent 'complete)
-
-;;; Windows
+;; window numbering
 (use-package window-numbering
   :ensure t
   :init (window-numbering-mode 1))
 
-;; windmove
 ;; windmove
 (use-package windmove
   :ensure t
@@ -75,75 +100,83 @@
   :init
   (setq windmove-wrap-around t))
 
-
-;; winner mode to restore window config
+;; winner mode - restore window config
+;; C-c-left/right
 (use-package winner
   :ensure t
   :init
   (winner-mode))
 
-;;; copy path variables from shell to emacs
-(use-package exec-path-from-shell
-  :if (memq window-system '(mac ns))
+;; crux
+(use-package crux
   :ensure t
-  :init
-  (exec-path-from-shell-initialize))
+  :bind (("C-a" . crux-move-beginning-of-line)))
 
-;;; set font
-;; (set-frame-font "Fira Code 10")
-;; (set-frame-font "Hack 10")
-;; (set-frame-font "DejaVu Sans Mono-10" nil t)
-(set-frame-font "Source Code Pro-11" nil t)
-;; (set-frame-font "Cousine-10" nil t)
+;; jump links
+(use-package ace-link
+    :init
+    (ace-link-setup-default))
 
-; display class/function cursor is in
-;; (which-function-mode)
+;; display class/function cursor is in
+(which-function-mode)
 
-;;; misc
+;; misc
 (setq tab-always-indent 'complete
       require-final-newline t
       column-number-mode t
       gc-cons-threshold 50000000
-      large-file-warning-threshold 100000000)
+      large-file-warning-threshold 100000000
+      global-prettify-symbols-mode +1
+      x-stretch-cursor t)
+(add-hook 'before-save-hook 'whitespace-cleanup)
 
-
-;;; file reference registers
-;; C-x r w a - where a is register name, to save window configuration
-;; C-x r j a - to apply a window configuration
-;; but it also stores files and not just pane configuration
-;; checkout emacs-purpose - can integrate with perspective also
-(set-register ?c (cons 'file "~/.emacs.el"))
-(set-register ?i (cons 'file "/data/Dropbox/org_files/in.org"))
-(set-register ?r (cons 'file "/data/Dropbox/org_files/repository.org"))
-(set-register ?p (cons 'file "/data/Dropbox/org_files/projects.org"))
-(set-register ?s (cons 'file "/data/Dropbox/org_files/someday.org"))
-(set-register ?m (cons 'file "/data/Dropbox/org_files/mobileorg.org"))
-(set-register ?w (cons 'file "/data/Dropbox/org_files/msd.org"))
-
-;;; cursors
+;; cursors
 (blink-cursor-mode 0)
 (use-package beacon
   :ensure t
   :init (beacon-mode 1))
 
-; multi line edit
+;; multi line edit
 (use-package multiple-cursors
   :ensure t
   :bind (("C-c m c" . mc/edit-lines)))
 
- ;;; autopair
-(use-package autopair
-  :ensure t
-  :init
-  (autopair-global-mode))
+;; iedit - edit multiple occurs
+(use-package iedit
+  :bind ("C-;" . iedit-mode))
 
-;;; company for auto complete
+;; parenthesis
+;; ;; autopair
+;; (use-package autopair
+;;   :ensure t
+;;   :init
+;;   (autopair-global-mode))
+
+;; smartparens
+(use-package smartparens
+  :init
+  (smartparens-global-mode t)
+  (show-smartparens-global-mode t)
+  (sp-with-modes '(markdown-mode gfm-mode)
+    (sp-local-pair "*" "*"))
+  (sp-with-modes '(org-mode)
+    (sp-local-pair "=" "=")
+    (sp-local-pair "*" "*")
+    (sp-local-pair "/" "/")
+    (sp-local-pair "_" "_")
+    (sp-local-pair "+" "+")
+    (sp-local-pair "<" ">")
+    (sp-local-pair "[" "]"))
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode)))
+
+;; company for auto complete
 (use-package company
   :ensure t
   :config
   (add-hook 'after-init-hook 'global-company-mode))
 
-;;; projectile
+;; projectile
 (use-package projectile
   :ensure t
   :after (helm helm-projectile)
@@ -153,7 +186,7 @@
   (setq projectile-completion-system 'helm)
   (setq projectile-switch-project-action 'helm-projectile))
 
-;;; helm
+;; helm
 (use-package helm
   :ensure t
   :bind (("M-x" . helm-M-x)
@@ -170,20 +203,25 @@
   :init
   (helm-projectile-on))
 
-;;; perspective
+;; perspective
 (use-package perspective
   :ensure t
   ;; :commands persp-mode
   :init
   (persp-mode))
 
-;;; magit
+;; magit
 (use-package magit
   :ensure t
   :bind (("C-c ms" . magit-status)
-         ("C-c ml" . magit-log-all)))
+         ("C-c ml" . magit-log-all))
+  :config
+  (use-package git-timemachine)
+  (use-package git-link
+    :init
+    (setq git-link-open-in-browser t)))
 
-;;; neotree
+;; neotree
 (use-package neotree
   :ensure t
   :bind (("<f8>". neotree-toggle))
@@ -195,20 +233,20 @@
   :ensure t
   :init
   (elpy-enable)
-  (setenv "WORKON_HOME" "~/virtualenvs")
+  (setenv "WORKON_HOME" "~/virtual_envs")
   (setq elpy-rpc-python-command "python3"
         elpy-rpc-virtualenv-path 'current)
   ;; (setq python-shell-interpreter "ipython"
-  ;;      	python-shell-interpreter-args "-i --simple-prompt")
+  ;;            python-shell-interpreter-args "-i --simple-prompt")
   (setq python-shell-interpreter "jupyter"
         python-shell-interpreter-args "console --simple-prompt"
         python-shell-prompt-detect-failure-warning nil)
   (add-to-list 'python-shell-completion-native-disabled-interpreters
-               "jupyter"))
+               "jupyter")
+  (setq elpy-rpc-timeout 10))
 
 ;; (use-package ein
 ;;   :ensure t)
-
 ;; (require 'ein)
 ;; (require 'ein-notebook)
 ;; (require 'ein-subpackages)
@@ -219,125 +257,187 @@
 ;; (setq ein:notebook-modes '(ein:notebook-multilang-mode ein:notebook-python-mode ein:notebook-plain-mode))
 
 (use-package flycheck
-	:ensure t
-	:init
+        :ensure t
+        :init
         (global-flycheck-mode))
-	;; (when (require 'flycheck nil t)
-	;; 	(setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-	;; 	(add-hook 'elpy-mode-hook 'flycheck-mode)))
+        ;; (when (require 'flycheck nil t)
+        ;;      (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+        ;;      (add-hook 'elpy-mode-hook 'flycheck-mode)))
 
-;;; auto complete interface
+(use-package flyspell
+  :bind (("C-`" . ispell-word)
+         ("C-~" . ispell-buffer))
+  :init
+  (dolist (hook '(text-mode-hook org-mode-hook))
+    (add-hook hook (lambda () (flyspell-mode 1))))
+  :config
+  (setq ispell-program-name "aspell"
+        ispell-list-command "--list"))
+
+(add-hook 'text-mode-hook 'turn-on-visual-line-mode)
+
+;; auto complete interface
 ;; (use-package auto-complete
 ;;   :ensure t
 ;;   :init
 ;;   (ac-config-default))
 
-;;; org
-;;; org mode
-(require 'org)
-(require 'org-inlinetask)
 
-(setq org-goto-interface 'outline-path-completion)
-(setq org-log-done t
-      org-cycle-separator-lines 2)
-(with-eval-after-load 'org
-  (setq org-startup-indented t)
-  (add-hook 'org-mode-hook #'visual-line-mode))
+;;; file reference registers
+;; C-x r w a - where a is register name, to save window configuration
+;; C-x r j a - to apply a window configuration
+;; but it also stores files and not just pane configuration
+;; checkout emacs-purpose - can integrate with perspective also
+(set-register ?c (cons 'file "~/.emacs.el"))
+(set-register ?i (cons 'file "/data/Dropbox/org_files/in.org"))
+(set-register ?r (cons 'file "/data/Dropbox/org_files/repository.org"))
+(set-register ?p (cons 'file "/data/Dropbox/org_files/projects.org"))
+(set-register ?s (cons 'file "/data/Dropbox/org_files/someday.org"))
+(set-register ?m (cons 'file "/data/Dropbox/org_files/mobileorg.org"))
+(set-register ?w (cons 'file "/data/Dropbox/org_files/msd.org"))
 
-(global-set-key (kbd "C-c o h") 'helm-org-in-buffer-headings)
+;; org
+(use-package org
+  :bind (("C-c l" . org-store-link)
+         ("C-c c" . org-capture)
+         ("C-c a" . org-agenda))
+  :init
+  (setq default-major-mode 'org-mode
+        org-startup-indented t
+        org-startup-truncated nil
+        org-startup-with-inline-images t
+        org-image-actual-width '(300)
+        org-goto-interface 'outline-path-completion
+        org-outline-path-complete-in-steps nil
+        org-cycle-separator-lines 2
+        org-show-notification-handler 'message
+        org-pretty-entities t
+        org-hide-emphasis-markers t
+        org-fontify-whole-heading-line t
+        org-fontify-done-headline t
+        org-fontify-quote-and-verse-blocks t
+        org-src-fontify-natively t))
 
-(global-set-key (kbd "C-c c") 'org-capture)
-(setq org-default-notes-file "/data/Dropbox/org_files/in.org")
+;; todo
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "ALLOCATE(a)" "STARTED(s!)" "WAITING(w@)"  "|" "DONE(d@)" "DEFERRED(f@)" "CANCELLED(c@)")))
 
-;; (use-package helm-org-rifle
-;;   :ensure t
-;;   :init
-;;   (setq helm-org-rifle-show-path t))
+;; effort estimates
+(setq org-global-properties
+      '(("Effort_ALL" .
+         "0:15 0:30 1:00 1:30 2:00 3:00 4:00 5:00 6:00 0:00")))
 
-;; (require 'helm-org-rifle)
-;; (setq helm-org-rifle-show-path t)
+(setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM")
 
-;; Make windmove work in Org mode:
-(add-hook 'org-shiftup-final-hook 'windmove-up)
-(add-hook 'org-shiftleft-final-hook 'windmove-left)
-(add-hook 'org-shiftdown-final-hook 'windmove-down)
-(add-hook 'org-shiftright-final-hook 'windmove-right)
+;; tags
+;; org-tag-alist '(("PROJECT" . ?p) ("MSD" . ?m) ("PERSONAL" . ?z) ("STUDY" . ?s) ("WRITING" . ?w) ("EMACS" . ?e))
+(setq org-tag-alist '(
+                      ;; Depth
+                      ;; ("@immersive" . ?i) ;; "Deep"
+                      ;; ("@process" . ?p) ;; "Shallow"
+                      ;; Context
+                      ("@work" . ?w)
+                      ("@home" . ?h)
+                      ("@errand" . ?e)
+                      ;; Time
+                      ("15min" . ?<)
+                      ("30min" . ?=)
+                      ("1h" . ?>)
+                      ;; Energy
+                      ("Challenge" . ?1)
+                      ("Average" . ?2)
+                      ("Easy" . ?3)
+                      ))
 
-; org agenda
-(global-set-key (kbd "C-c a") 'org-agenda)
-(setq org-agenda-show-log t
+;; org bullets
+(use-package org-bullets
+  :init
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+;; org cliplink
+(use-package org-cliplink
+  :bind ("C-x p i" . org-cliplink))
+
+;; org rifle
+(use-package helm-org-rifle
+  :bind ("C-c o" . helm-org-rifle))
+
+;; refile
+(setq org-refile-targets '(("/data/Dropbox/org_files/projects.org" :maxlevel . 3)
+                           ("/data/Dropbox/org_files/repository.org" :level . 3)
+                           ("/data/Dropbox/org_files/someday.org" :level . 3)
+                           ("/data/Dropbox/org_files/msd.org" :maxlevel . 5))
+      org-refile-use-outline-path 'file
+      org-refile-allow-creating-parent-nodes 'confirm)
+
+;; CAPTURE
+(setq org-capture-templates
+      '(("t" "Task" entry (file "/data/Dropbox/org_files/in.org")
+         "* TODO %?\n")))
+
+;; AGENDAS
+(setq org-agenda-inhibit-startup nil
+      org-agenda-show-future-repeats nil
+      org-agenda-start-on-weekday nil
+      org-agenda-skip-deadline-if-done t
+      org-agenda-skip-scheduled-if-done t
       org-agenda-window-setup 'current-window)
 
 (setq org-agenda-files (list "/data/Dropbox/org_files/projects.org"
                              "/data/Dropbox/org_files/in.org"
                              "/data/Dropbox/org_files/msd.org"))
 
-; refile targets
-;; (setq org-refile-targets '((nil :maxlevel . 5)
-;;                            (org-agenda-files :maxlevel . 5)))
-(setq org-refile-targets '(("/data/Dropbox/org_files/projects.org" :maxlevel . 3)
-                           ("/data/Dropbox/org_files/repository.org" :level . 3)
-                           ("/data/Dropbox/org_files/someday.org" :level . 3)
-                           ("/data/Dropbox/org_files/msd.org" :maxlevel . 5)))
+;; org super agenda
+;; DEFT for searching
 
-; refile with filenames/path instead of being flat
-(setq org-refile-use-outline-path 'file)
-(setq org-outline-path-complete-in-steps nil)
-; refile create parents on the fly
-(setq org-refile-allow-creating-parent-nodes 'confirm)
+;; clocking
+(setq org-log-done 'time
+      org-clock-idle-time nil
+      org-clock-continuously nil
+      org-clock-persist t
+      ;; org-clock-in-switch-to-state "STARTED"
+      org-clock-in-resume nil
+      org-clock-report-include-clocking-task t
+      org-clock-out-remove-zero-time-clocks t
+      ;; Too many clock entries clutter up a heading
+      org-log-into-drawer t
+      org-clock-into-drawer 1)
 
-;; Todo keywords
-(setq org-todo-keywords '((sequence "TODO(t)" "STARTED(s!)" "WAITING(w@)" "APPT(a)"  "|" "DONE(d@)" "DEFERRED(f@)" "CANCELLED(c@)")))
-;; (require 'org-inlinetask)
-;; (setq org-log-done 'note)
-(setq org-log-into-drawer t)
+;; org modules
+;; (require 'org-install)
+;; (setq org-modules '(org-habit org-tempo))
+;; (org-load-modules-maybe t)
 
-;; org tags and properties
-(setq org-tag-alist '(("PROJECT" . ?p) ("MSD" . ?m) ("PERSONAL" . ?z) ("STUDY" . ?s) ("WRITING" . ?w) ("EMACS" . ?e)))
-
-; global Effort estimate values
-(setq org-global-properties
-      '(("Effort_ALL" .
-         "0:15 0:30 1:00 1:30 2:00 3:00 4:00 5:00 6:00 0:00")))
-(setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM")
-
-
-;; org mobile staging area
-(setq org-directory "~/Dropbox/org_files")
-(setq org-mobile-inbox-for-pull "~/Dropbox/org_files/mobileorg.org")
-(setq org-mobile-directory "~/Dropbox/")
-(setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-
-;; org agenda customize variables
-(setq org-agenda-show-all-dates t
-      org-agenda-skip-deadline-if-done t
-      org-agenda-skip-scheduled-if-done t
-      org-agenda-start-on-weekday nil
-      org-agenda-span 7)
-
-;; org habit tracking
-(add-to-list 'org-modules "org-habit")
-(require 'org-habit)
-(setq org-habit-graph-column 80)
-(setq org-habit-show-habits-only-for-today nil)
-(setq org-habit-preceding-days 14)
-(setq org-habit-following-days 1)
+;; org habits
+;; (add-to-list 'org-modules "org-habit")
+;; (require 'org-habit)
+;; (setq org-habit-graph-column 80)
+;; (setq org-habit-show-habits-only-for-today nil)
+;; (setq org-habit-preceding-days 14)
+;; (setq org-habit-following-days 1)
 
 ;; org mobile staging area
-(setq org-directory "~/Dropbox/org_files")
-(setq org-mobile-inbox-for-pull "~/Dropbox/org_files/mobileorg.org")
-(setq org-mobile-directory "~/Dropbox/")
-(setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+;; (setq org-directory "~/Dropbox/org_files")
+;; (setq org-mobile-inbox-for-pull "~/Dropbox/org_files/mobileorg.org")
+;; (setq org-mobile-directory "~/Dropbox/")
+;; (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
 
-
-;;; plant uml
-;; Enable plantuml-mode for PlantUML files
+;; plant uml
 (use-package plantuml-mode
   :ensure t
   :init
-  (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode)))
-               ;; 'org-src-lang-modes '("plantuml" . plantuml)))
+  (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+  (setq org-plantuml-jar-path (expand-file-name "/home/vsaptaram/packages/plantuml.jar"))
+  (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t))))
 
+;; markdown mode
+(use-package markdown-mode
+  :ensure t
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 
 ;; install pdf-tools
 ;; (setenv "PKG_CONFIG_PATH" "/usr/local/lib/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
@@ -362,9 +462,9 @@
   :ensure t
   :init
   (setq helm-bibtex-bibliography '("~/Dropbox/zotero/bibliography.bib")
-	bibtex-completion-bibliography '("~/Dropbox/zotero/bibliography.bib")
-	bibtex-completion-pdf-field "file"
-	bibtex-completion-notes-path "~/Dropbox/org_files/research_notes/notes.org"))
+        bibtex-completion-bibliography '("~/Dropbox/zotero/bibliography.bib")
+        bibtex-completion-pdf-field "file"
+        bibtex-completion-notes-path "~/Dropbox/org_files/research_notes/notes.org"))
 
 ;;; windows layout
 (split-window-horizontally)
@@ -376,7 +476,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (ein use-package))))
+ '(package-selected-packages
+   (quote
+    (git-link git-timemachine markdown-mode ein use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
