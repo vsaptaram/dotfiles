@@ -309,12 +309,9 @@
 ;; but it also stores files and not just pane configuration
 ;; checkout emacs-purpose - can integrate with perspective also
 (set-register ?c (cons 'file "~/.emacs.el"))
-(set-register ?i (cons 'file "/data/Dropbox/org_files/in.org"))
-(set-register ?r (cons 'file "/data/Dropbox/org_files/repository.org"))
-(set-register ?p (cons 'file "/data/Dropbox/org_files/projects.org"))
-(set-register ?s (cons 'file "/data/Dropbox/org_files/someday.org"))
-(set-register ?m (cons 'file "/data/Dropbox/org_files/mobileorg.org"))
-(set-register ?w (cons 'file "/data/Dropbox/org_files/msd.org"))
+(set-register ?i (cons 'file "/data/Dropbox/org_files/gtd/inbox.org"))
+(set-register ?p (cons 'file "/data/Dropbox/org_files/gtd/projects.org"))
+(set-register ?s (cons 'file "/data/Dropbox/org_files/gtd/someday.org"))
 
 ;; org
 (use-package org
@@ -339,14 +336,9 @@
         org-src-fontify-natively t))
 
 ;; todo
-;; (setq org-todo-keywords
-;;       '((sequence "TODO(t)" "NEXT(n)" "ALLOCATE(a@)" | "DONE(d@)" "CANCELLED(c@)")))
-;; (setq org-todo-keywords
-;;       '((sequence "TODO(t)" "NEXT(t)" "ALLOCATE(a)"  "WAITING(w@)"  "|" "DONE(d@)" "DEFERRED(f@)" "CANCELLED(c@)")))
-
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d@)")
-        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
+        (sequence "ALLOCATE(a@/!)" "|" "CANCELLED(c@/!)")))
 
 ;; effort estimates
 (setq org-global-properties
@@ -439,9 +431,17 @@
 
 ;; (add-to-list 'org-agenda-custom-commands `,jethro/org-agenda-todo-view)
 
+;; stuck projects
+(setq org-stuck-projects
+      '("+LEVEL=1+PROJECT/-DONE" ("NEXT") nil ""))
+
+;; (setq org-agenda-time-grid
+;;       '(((daily today)
+;;          (800 1000 1200 1400 1600 1800 2000)
+;;          "......" "----------------")))
+
 (setq org-agenda-custom-commands
       (quote (
-
               (" " "Agenda"
                ((agenda "" nil)
                 (todo "TODO"
@@ -452,8 +452,18 @@
                            ((org-agenda-overriding-header "NEXT - Projects")))
                 (tags-todo "-PROJECT+TODO=\"NEXT\""
                            ((org-agenda-overriding-header "NEXT - Standalone")))
+                (tags-todo "LEVEL=1+PROJECT"
+                           ((org-agenda-overriding-header "Projects Overview")
+                            (org-tags-match-list-sublevels 'nil)))
+                (stuck ""
+                       ((org-agenda-overriding-header "Stuck Projects")))
+                (tags-todo "+PROJECT/+TODO"
+                           ((org-agenda-overriding-header "All Project Tasks")
+                            (org-tags-match-list-sublevels 'indented)))
                 )
-               nil))))
+               nil)
+              )
+             ))
 
 ;; refile
 (setq org-refile-targets (quote ((nil :maxlevel . 9)
