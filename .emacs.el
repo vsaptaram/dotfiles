@@ -40,6 +40,10 @@
 (setq coding-system-for-read 'utf-8)
 (setq coding-system-for-write 'utf-8)
 
+;; restart emacs
+(use-package restart-emacs
+  :ensure t)
+
 ;; appearances
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -50,8 +54,8 @@
 
 ;; start up
 (setq inhibit-splash-screen t
-      initial-scratch-message nil
-      initial-major-mode 'org-mode)
+      initial-scratch-message nil)
+      ;; initial-major-mode 'org-mode)
 
 ;; themes
 (use-package spacemacs-common
@@ -160,11 +164,11 @@
   (sp-with-modes '(markdown-mode gfm-mode)
     (sp-local-pair "*" "*"))
   (sp-with-modes '(org-mode)
-    (sp-local-pair "=" "=")
+    ;; (sp-local-pair "=" "=")
     (sp-local-pair "*" "*")
     (sp-local-pair "/" "/")
     (sp-local-pair "_" "_")
-    (sp-local-pair "+" "+")
+    ;; (sp-local-pair "+" "+")
     (sp-local-pair "<" ">")
     (sp-local-pair "[" "]"))
   (use-package rainbow-delimiters
@@ -210,11 +214,27 @@
   :init
   (persp-mode))
 
+;; deft
+(use-package deft
+  :bind ("<f9>" . deft)
+  :commands (deft)
+  :config (setq deft-directory "/data/Dropbox/org_files/kb"
+                deft-recursive t
+                deft-default-extension "org"
+                deft-extensions '("org")
+                deft-text-mode 'org-mode
+                deft-use-filter-string-for-filename nil
+                deft-file-naming-rules '((noslash . "-")
+                                         (nospace . "-")
+                                         (case-fn . downcase))))
+
 ;; magit
 (use-package magit
   :ensure t
   :bind (("C-c ms" . magit-status)
          ("C-c ml" . magit-log-all))
+  :custom
+  (magit-log-arguments '("-n100" "--graph" "--decorate"))
   :config
   (use-package git-timemachine)
   (use-package git-link
@@ -268,8 +288,8 @@
   :bind (("C-`" . ispell-word)
          ("C-~" . ispell-buffer))
   :init
-  (dolist (hook '(text-mode-hook org-mode-hook))
-    (add-hook hook (lambda () (flyspell-mode 1))))
+  ;; (dolist (hook '(text-mode-hook org-mode-hook))
+  ;;   (add-hook hook (lambda () (flyspell-mode 1))))
   :config
   (setq ispell-program-name "aspell"
         ispell-list-command "--list"))
@@ -319,35 +339,42 @@
         org-src-fontify-natively t))
 
 ;; todo
+;; (setq org-todo-keywords
+;;       '((sequence "TODO(t)" "NEXT(n)" "ALLOCATE(a@)" | "DONE(d@)" "CANCELLED(c@)")))
+;; (setq org-todo-keywords
+;;       '((sequence "TODO(t)" "NEXT(t)" "ALLOCATE(a)"  "WAITING(w@)"  "|" "DONE(d@)" "DEFERRED(f@)" "CANCELLED(c@)")))
+
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "ALLOCATE(a)" "STARTED(s!)" "WAITING(w@)"  "|" "DONE(d@)" "DEFERRED(f@)" "CANCELLED(c@)")))
+      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d@)")
+        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
 
 ;; effort estimates
 (setq org-global-properties
       '(("Effort_ALL" .
-         "0:15 0:30 1:00 1:30 2:00 3:00 4:00 5:00 6:00 0:00")))
+         "0:15 1:00 2:00 4:00 6:00")))
 
 (setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM")
 
 ;; tags
 ;; org-tag-alist '(("PROJECT" . ?p) ("MSD" . ?m) ("PERSONAL" . ?z) ("STUDY" . ?s) ("WRITING" . ?w) ("EMACS" . ?e))
 (setq org-tag-alist '(
-                      ;; Depth
-                      ;; ("@immersive" . ?i) ;; "Deep"
-                      ;; ("@process" . ?p) ;; "Shallow"
-                      ;; Context
-                      ("@work" . ?w)
-                      ("@home" . ?h)
-                      ("@errand" . ?e)
-                      ;; Time
+                      ;; Context / Areas
+                      ("MSD" . ?M)
+                      ("NEURO" . ?N)
+                      ("PERSONAL" . ?V)
+                      ("UNKNOWN" . ?U)
+                      ;; type of work
+                      ("READING" . ?r)
+                      ("WRITING" . ?w)
+                      ("PROJECT" . ?p)
+                      ;; topics
+                      ("client" . ?c)
+                      ("piano" . ?p)
+                      ("emacs" . ?e)
+                      ;; Time - or enforce through effort estimates
                       ("15min" . ?<)
-                      ("30min" . ?=)
-                      ("1h" . ?>)
-                      ;; Energy
-                      ("Challenge" . ?1)
-                      ("Average" . ?2)
-                      ("Easy" . ?3)
-                      ))
+                      ("<1h" . ?=)
+                      (">>1h" . ?>)))
 
 ;; org bullets
 (use-package org-bullets
@@ -362,17 +389,9 @@
 (use-package helm-org-rifle
   :bind ("C-c o" . helm-org-rifle))
 
-;; refile
-(setq org-refile-targets '(("/data/Dropbox/org_files/projects.org" :maxlevel . 3)
-                           ("/data/Dropbox/org_files/repository.org" :level . 3)
-                           ("/data/Dropbox/org_files/someday.org" :level . 3)
-                           ("/data/Dropbox/org_files/msd.org" :maxlevel . 5))
-      org-refile-use-outline-path 'file
-      org-refile-allow-creating-parent-nodes 'confirm)
-
 ;; CAPTURE
 (setq org-capture-templates
-      '(("t" "Task" entry (file "/data/Dropbox/org_files/in.org")
+      '(("t" "Task" entry (file "/data/Dropbox/org_files/gtd/inbox.org")
          "* TODO %?\n")))
 
 ;; AGENDAS
@@ -383,12 +402,71 @@
       org-agenda-skip-scheduled-if-done t
       org-agenda-window-setup 'current-window)
 
-(setq org-agenda-files (list "/data/Dropbox/org_files/projects.org"
-                             "/data/Dropbox/org_files/in.org"
-                             "/data/Dropbox/org_files/msd.org"))
 
-;; org super agenda
-;; DEFT for searching
+(setq org-agenda-files
+      (file-expand-wildcards "/data/Dropbox/org_files/gtd/*.org"))
+;; remove someday.org
+(setq org-agenda-files (remove "/data/Dropbox/org_files/gtd/someday.org" org-agenda-files))
+
+(setq vsr/org-agenda-directory "/data/Dropbox/org_files/gtd/")
+
+;; custom agendas
+;; (setq vsr/org-agenda-todo-view
+;;       `(" " "Agenda"
+;;         ((agenda "")
+;;          (todo "TODO"
+;;                ((org-agenda-overriding-header "Refile Inbox")
+                ;; (org-agenda-files '(,(concat vsr/org-agenda-directory "inbox.org")))))
+;;          (tags-todo "PROJECT+TODO=\"NEXT\""
+;;                     ((org-agenda-overriding-header "NEXT - Projects")))
+;;          (tags-todo "-PROJECT+TODO=\"NEXT\""
+;;                ((org-agenda-overriding-header "NEXT - Standalone")))
+;;          ;; (todo "NEXT"
+;;          ;;       ((org-agenda-overriding-header "NEXT tasks")
+;;          ;;        (org-agenda-files '(,(concat vsr/org-agenda-directory "someday.org")
+;;          ;;                            ,(concat vsr/org-agenda-directory "projects.org")
+;;          ;;                            ,(concat vsr/org-agenda-directory "next.org")))
+;;          ;;        ))
+;;          (todo "TODO"
+;;                ((org-agenda-overriding-header "Projects")
+;;                 (org-agenda-files '(,(concat vsr/org-agenda-directory "projects.org")))
+;;                 ))
+;;          (todo "TODO"
+;;                ((org-agenda-overriding-header "One-off Tasks")
+;;                 (org-agenda-files '(,(concat vsr/org-agenda-directory "next.org")))
+;;                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+;;          nil)))
+
+;; (add-to-list 'org-agenda-custom-commands `,jethro/org-agenda-todo-view)
+
+(setq org-agenda-custom-commands
+      (quote (
+
+              (" " "Agenda"
+               ((agenda "" nil)
+                (todo "TODO"
+                      ((org-agenda-overriding-header "Tasks to Refile")
+                       (org-agenda-files '("/data/Dropbox/org_files/gtd/inbox.org"))
+                       (org-tags-match-list-sublevels nil)))
+                (tags-todo "PROJECT+TODO=\"NEXT\""
+                           ((org-agenda-overriding-header "NEXT - Projects")))
+                (tags-todo "-PROJECT+TODO=\"NEXT\""
+                           ((org-agenda-overriding-header "NEXT - Standalone")))
+                )
+               nil))))
+
+;; refile
+(setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                 (org-agenda-files :maxlevel . 9)))
+      org-refile-use-outline-path 'file
+      org-refile-allow-creating-parent-nodes 'confirm)
+
+;; (setq org-refile-targets '(("/data/Dropbox/org_files/projects.org" :maxlevel . 3)
+;;                            ("/data/Dropbox/org_files/repository.org" :level . 3)
+;;                            ("/data/Dropbox/org_files/someday.org" :level . 3)
+;;                            ("/data/Dropbox/org_files/msd.org" :maxlevel . 5))
+;;       org-refile-use-outline-path 'file
+;;       org-refile-allow-creating-parent-nodes 'confirm)
 
 ;; clocking
 (setq org-log-done 'time
@@ -478,7 +556,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (git-link git-timemachine markdown-mode ein use-package))))
+    (deft git-link git-timemachine markdown-mode ein use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
