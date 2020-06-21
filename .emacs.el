@@ -132,7 +132,7 @@
       large-file-warning-threshold 100000000
       global-prettify-symbols-mode +1
       x-stretch-cursor t)
-(add-hook 'before-save-hook 'whitespace-cleanup)
+;; (add-hook 'before-save-hook 'whitespace-cleanup)
 
 ;; cursors
 (blink-cursor-mode 0)
@@ -223,7 +223,7 @@
                 deft-default-extension "org"
                 deft-extensions '("org")
                 deft-text-mode 'org-mode
-                deft-use-filter-string-for-filename nil
+                deft-use-filter-string-for-filename t
                 deft-file-naming-rules '((noslash . "-")
                                          (nospace . "-")
                                          (case-fn . downcase))))
@@ -338,12 +338,12 @@
 ;; todo
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d@)")
-        (sequence "ALLOCATE(a@/!)" "|" "CANCELLED(c@/!)")))
+        (sequence "ALLOCATE(a/!)" "WAITING(w@/!)"  "|" "CANCELLED(c@/!)")))
 
 ;; effort estimates
 (setq org-global-properties
       '(("Effort_ALL" .
-         "0:15 1:00 2:00 4:00 6:00")))
+         "0:15 1:00 2:00 3:00 4:00 6:00")))
 
 (setq org-columns-default-format "%50ITEM(Task) %2PRIORITY %10Effort(Effort){:} %10CLOCKSUM")
 
@@ -358,7 +358,7 @@
                       ;; type of work
                       ("READING" . ?r)
                       ("WRITING" . ?w)
-                      ("PROJECT" . ?p)
+                      ("PROJECT" . ?P)
                       ;; topics
                       ("client" . ?c)
                       ("piano" . ?p)
@@ -395,41 +395,11 @@
       org-agenda-window-setup 'current-window)
 
 
-(setq org-agenda-files
-      (file-expand-wildcards "/data/Dropbox/org_files/gtd/*.org"))
+(setq org-agenda-files (file-expand-wildcards "/data/Dropbox/org_files/gtd/*.org"))
 ;; remove someday.org
 (setq org-agenda-files (remove "/data/Dropbox/org_files/gtd/someday.org" org-agenda-files))
 
 (setq vsr/org-agenda-directory "/data/Dropbox/org_files/gtd/")
-
-;; custom agendas
-;; (setq vsr/org-agenda-todo-view
-;;       `(" " "Agenda"
-;;         ((agenda "")
-;;          (todo "TODO"
-;;                ((org-agenda-overriding-header "Refile Inbox")
-                ;; (org-agenda-files '(,(concat vsr/org-agenda-directory "inbox.org")))))
-;;          (tags-todo "PROJECT+TODO=\"NEXT\""
-;;                     ((org-agenda-overriding-header "NEXT - Projects")))
-;;          (tags-todo "-PROJECT+TODO=\"NEXT\""
-;;                ((org-agenda-overriding-header "NEXT - Standalone")))
-;;          ;; (todo "NEXT"
-;;          ;;       ((org-agenda-overriding-header "NEXT tasks")
-;;          ;;        (org-agenda-files '(,(concat vsr/org-agenda-directory "someday.org")
-;;          ;;                            ,(concat vsr/org-agenda-directory "projects.org")
-;;          ;;                            ,(concat vsr/org-agenda-directory "next.org")))
-;;          ;;        ))
-;;          (todo "TODO"
-;;                ((org-agenda-overriding-header "Projects")
-;;                 (org-agenda-files '(,(concat vsr/org-agenda-directory "projects.org")))
-;;                 ))
-;;          (todo "TODO"
-;;                ((org-agenda-overriding-header "One-off Tasks")
-;;                 (org-agenda-files '(,(concat vsr/org-agenda-directory "next.org")))
-;;                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
-;;          nil)))
-
-;; (add-to-list 'org-agenda-custom-commands `,jethro/org-agenda-todo-view)
 
 ;; stuck projects
 (setq org-stuck-projects
@@ -447,17 +417,18 @@
                 (todo "TODO"
                       ((org-agenda-overriding-header "Tasks to Refile")
                        (org-agenda-files '("/data/Dropbox/org_files/gtd/inbox.org"))
-                       (org-tags-match-list-sublevels nil)))
+                       (org-tags-match-list-sublevels 'indented)))
                 (tags-todo "PROJECT+TODO=\"NEXT\""
-                           ((org-agenda-overriding-header "NEXT - Projects")))
+                           ((org-agenda-overriding-header "NEXT Project Tasks")
+                            (org-tags-match-list-sublevels 'indented)))
                 (tags-todo "-PROJECT+TODO=\"NEXT\""
-                           ((org-agenda-overriding-header "NEXT - Standalone")))
+                           ((org-agenda-overriding-header "NEXT Standalone Tasks")))
                 (tags-todo "LEVEL=1+PROJECT"
                            ((org-agenda-overriding-header "Projects Overview")
                             (org-tags-match-list-sublevels 'nil)))
                 (stuck ""
                        ((org-agenda-overriding-header "Stuck Projects")))
-                (tags-todo "+PROJECT/+TODO"
+                (tags-todo "+PROJECT/+TODO-SCHEDULED-DEADLINE"
                            ((org-agenda-overriding-header "All Project Tasks")
                             (org-tags-match-list-sublevels 'indented)))
                 )
@@ -466,35 +437,24 @@
              ))
 
 ;; refile
-(setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                 (org-agenda-files :maxlevel . 9)))
+(setq vsr/kb_files (file-expand-wildcards "/data/Dropbox/org_files/kb/*.org"))
+(setq org-refile-targets (quote (
+                                 (nil :maxlevel . 9)
+                                 (org-agenda-files :maxlevel . 9)
+                                 (vsr/kb_files :maxlevel . 9)))
       org-refile-use-outline-path 'file
       org-refile-allow-creating-parent-nodes 'confirm)
-
-;; (setq org-refile-targets '(("/data/Dropbox/org_files/projects.org" :maxlevel . 3)
-;;                            ("/data/Dropbox/org_files/repository.org" :level . 3)
-;;                            ("/data/Dropbox/org_files/someday.org" :level . 3)
-;;                            ("/data/Dropbox/org_files/msd.org" :maxlevel . 5))
-;;       org-refile-use-outline-path 'file
-;;       org-refile-allow-creating-parent-nodes 'confirm)
 
 ;; clocking
 (setq org-log-done 'time
       org-clock-idle-time nil
       org-clock-continuously nil
       org-clock-persist t
-      ;; org-clock-in-switch-to-state "STARTED"
       org-clock-in-resume nil
       org-clock-report-include-clocking-task t
       org-clock-out-remove-zero-time-clocks t
-      ;; Too many clock entries clutter up a heading
       org-log-into-drawer t
       org-clock-into-drawer 1)
-
-;; org modules
-;; (require 'org-install)
-;; (setq org-modules '(org-habit org-tempo))
-;; (org-load-modules-maybe t)
 
 ;; org habits
 ;; (add-to-list 'org-modules "org-habit")
