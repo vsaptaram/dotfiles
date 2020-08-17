@@ -22,6 +22,10 @@
   (require 'use-package))
 (setq use-package-always-ensure t)
 
+;; do not use custom-set-variables
+(setq custom-file "~/.emacs-custom.el")
+;; (load custom-file)  ;; not loading custom-file
+
 ;; remap Cmd/Opt for Apple keyboards
 (if (eq system-type 'darwin)
     (setq mac-command-modifier 'meta
@@ -309,9 +313,9 @@
 ;; but it also stores files and not just pane configuration
 ;; checkout emacs-purpose - can integrate with perspective also
 (set-register ?c (cons 'file "~/.emacs.el"))
-(set-register ?i (cons 'file "/data/Dropbox/org_files/gtd/inbox.org"))
-(set-register ?p (cons 'file "/data/Dropbox/org_files/gtd/projects.org"))
-(set-register ?s (cons 'file "/data/Dropbox/org_files/gtd/someday.org"))
+(set-register ?i (cons 'file "/data/Dropbox/org_files/kb/gtd/inbox.org"))
+(set-register ?p (cons 'file "/data/Dropbox/org_files/kb/gtd/projects.org"))
+(set-register ?s (cons 'file "/data/Dropbox/org_files/kb/gtd/someday.org"))
 
 ;; org
 (use-package org
@@ -333,12 +337,13 @@
         org-fontify-whole-heading-line t
         org-fontify-done-headline t
         org-fontify-quote-and-verse-blocks t
-        org-src-fontify-natively t))
+        org-src-fontify-natively t
+        org-use-sub-superscripts (quote {})))
 
 ;; todo
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d@)")
-        (sequence "ALLOCATE(a/!)" "WAITING(w@/!)"  "|" "CANCELLED(c@/!)")))
+      '((sequence "TODO(t)" "NEXT(n)" "RUNNING(r)" "ANALYSIS(a)"  "|" "DONE(d@)")
+        (sequence "ALLOCATE(l/!)" "WAITING(w@/!)"  "|" "CANCELLED(c@/!)")))
 
 ;; effort estimates
 (setq org-global-properties
@@ -357,6 +362,7 @@
                       ("UNKNOWN" . ?U)
                       ;; type of work
                       ("READING" . ?r)
+                      ("STUDY" . ?S)
                       ("WRITING" . ?w)
                       ("PROJECT" . ?P)
                       ;; topics
@@ -383,44 +389,66 @@
 
 ;; CAPTURE
 (setq org-capture-templates
-      '(("t" "Task" entry (file "/data/Dropbox/org_files/gtd/inbox.org")
+      '(("t" "Task" entry (file "/data/Dropbox/org_files/kb/gtd/inbox.org")
          "* TODO %?\n")))
 
 ;; AGENDAS
 (setq org-agenda-inhibit-startup nil
-      org-agenda-show-future-repeats nil
+      org-agenda-show-future-repeats t
       org-agenda-start-on-weekday nil
       org-agenda-skip-deadline-if-done t
       org-agenda-skip-scheduled-if-done t
       org-agenda-window-setup 'current-window)
 
 
-(setq org-agenda-files (file-expand-wildcards "/data/Dropbox/org_files/gtd/*.org"))
+(setq org-agenda-files (file-expand-wildcards "/data/Dropbox/org_files/kb/gtd/*.org"))
 ;; remove someday.org
-(setq org-agenda-files (remove "/data/Dropbox/org_files/gtd/someday.org" org-agenda-files))
+(setq org-agenda-files (remove "/data/Dropbox/org_files/kb/gtd/someday.org" org-agenda-files))
 
-(setq vsr/org-agenda-directory "/data/Dropbox/org_files/gtd/")
+(setq vsr/org-agenda-directory "/data/Dropbox/org_files/kb/gtd/")
 
 ;; stuck projects
 (setq org-stuck-projects
       '("+LEVEL=1+PROJECT/-DONE" ("NEXT") nil ""))
 
-;; (setq org-agenda-time-grid
-;;       '(((daily today)
-;;          (800 1000 1200 1400 1600 1800 2000)
-;;          "......" "----------------")))
-
 (setq org-agenda-custom-commands
       (quote (
-              (" " "Agenda"
+              ("1" "Work Agenda"
                ((agenda "" nil)
                 (todo "TODO"
                       ((org-agenda-overriding-header "Tasks to Refile")
-                       (org-agenda-files '("/data/Dropbox/org_files/gtd/inbox.org"))
+                       (org-agenda-files '("/data/Dropbox/org_files/kb/gtd/inbox.org"))
                        (org-tags-match-list-sublevels 'indented)))
+                (todo "RUNNING"
+                      ((org-agenda-overriding-header "RUNNING Tasks")))
+                (todo "ANALYSIS"
+                      ((org-agenda-overriding-header "ANALYSIS Tasks")))
                 (tags-todo "PROJECT+TODO=\"NEXT\""
                            ((org-agenda-overriding-header "NEXT Project Tasks")
                             (org-tags-match-list-sublevels 'indented)))
+                (todo "ALLOCATE|WAITING"
+                           ((org-agenda-overriding-header "WAITING Tasks")))
+                (tags-todo "LEVEL=1+PROJECT"
+                           ((org-agenda-overriding-header "Projects Overview")
+                            (org-tags-match-list-sublevels 'nil)))
+                (stuck ""
+                       ((org-agenda-overriding-header "Stuck Projects")))
+                (tags-todo "-PROJECT+TODO=\"NEXT\""
+                           ((org-agenda-overriding-header "NEXT Standalone Tasks")))
+                (tags-todo "+LEVEL>1/+PROJECT/+TODO"
+                           ((org-agenda-overriding-header "Unscheduled TODO Project Tasks")
+                            (org-tags-match-list-sublevels 'indented)
+                            (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+                )
+               ((org-agenda-tag-filter-preset '("+MSD"))))
+              ("2" "Personal Agenda"
+               ((agenda "" nil)
+                (todo "TODO"
+                      ((org-agenda-overriding-header "Tasks to Refile")
+                       (org-agenda-files '("/data/Dropbox/org_files/kb/gtd/inbox.org"))
+                       (org-tags-match-list-sublevels 'indented)))
+                (todo "RUNNING"
+                           ((org-agenda-overriding-header "RUNNING Tasks")))
                 (tags-todo "-PROJECT+TODO=\"NEXT\""
                            ((org-agenda-overriding-header "NEXT Standalone Tasks")))
                 (tags-todo "LEVEL=1+PROJECT"
@@ -428,11 +456,15 @@
                             (org-tags-match-list-sublevels 'nil)))
                 (stuck ""
                        ((org-agenda-overriding-header "Stuck Projects")))
-                (tags-todo "+PROJECT/+TODO-SCHEDULED-DEADLINE"
-                           ((org-agenda-overriding-header "All Project Tasks")
+                (tags-todo "PROJECT+TODO=\"NEXT\""
+                           ((org-agenda-overriding-header "NEXT Project Tasks")
                             (org-tags-match-list-sublevels 'indented)))
+                (tags-todo "+LEVEL>1/+PROJECT/+TODO"
+                           ((org-agenda-overriding-header "Unscheduled TODO Project Tasks")
+                            (org-tags-match-list-sublevels 'indented)
+                            (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
                 )
-               nil)
+               ((org-agenda-tag-filter-preset '("-MSD"))))
               )
              ))
 
@@ -518,18 +550,3 @@
 (split-window-horizontally)
 (split-window-horizontally)
 (balance-windows)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (deft git-link git-timemachine markdown-mode ein use-package))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
