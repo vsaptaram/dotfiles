@@ -241,6 +241,9 @@ bar {
         # font pango:monospace 10
         font pango:Ubuntu Mono 12
         position top
+        # disable scrolling in the bar
+        bindsym button4 nop
+        bindsym button5 nop
 }
 
 # polybar

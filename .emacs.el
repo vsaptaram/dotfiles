@@ -22,6 +22,22 @@
   (require 'use-package))
 (setq use-package-always-ensure t)
 
+;; bootstrap straight.el
+;; (defvar bootstrap-version)
+;; (let ((bootstrap-file
+;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+;;       (bootstrap-version 5))
+;;   (unless (file-exists-p bootstrap-file)
+;;     (with-current-buffer
+;;         (url-retrieve-synchronously
+;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+;;          'silent 'inhibit-cookies)
+;;       (goto-char (point-max))
+;;       (eval-print-last-sexp)))
+;;   (load bootstrap-file nil 'nomessage))
+;; use-package
+;; (straight-use-package 'use-package)
+
 ;; do not use custom-set-variables
 (setq custom-file "~/.emacs-custom.el")
 ;; (load custom-file)  ;; not loading custom-file
@@ -269,6 +285,25 @@
                "jupyter")
   (setq elpy-rpc-timeout 10))
 
+;; buftra - dependency for pyment
+;; needed because no straight.el hook from github repos
+;; (use-package buftra
+;;   :load-path "/data/Dropbox/dotfiles/emacs_packages")
+
+;; (quelpa
+;;  '(buftra :fetcher url
+;;                 :url "https://github.com/paetzke/buftra.el"))
+
+;; (load "/data/Dropbox/dotfiles/emacs_packages/buftra.el")
+;; (require 'buftra)
+
+;; pyment for auto generating docstring
+(use-package py-pyment
+    :load-path "/data/Dropbox/dotfiles/emacs_packages"
+    ;; :straight (:host github :repo "humitos/py-cmd-buffer.el")
+    :config
+    (setq py-pyment-options '("--output=numpydoc")))
+
 ;; (use-package ein
 ;;   :ensure t)
 ;; (require 'ein)
@@ -306,7 +341,6 @@
 ;;   :init
 ;;   (ac-config-default))
 
-
 ;;; file reference registers
 ;; C-x r w a - where a is register name, to save window configuration
 ;; C-x r j a - to apply a window configuration
@@ -338,11 +372,20 @@
         org-fontify-done-headline t
         org-fontify-quote-and-verse-blocks t
         org-src-fontify-natively t
-        org-use-sub-superscripts (quote {})))
+        ;; org-use-sub-superscripts (quote {})
+        org-use-sub-superscripts nil))
+
+;;; org to github flavored md
+(use-package ox-gfm
+  :ensure t)
+(eval-after-load "org"
+  '(require 'ox-gfm nil t))
+(eval-after-load "org"
+  '(require 'ox-md nil t))
 
 ;; todo
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "NEXT(n)" "RUNNING(r)" "ANALYSIS(a)"  "|" "DONE(d@)")
+      '((sequence "TODO(t)" "NEXT(n)" "RUNNING(r)" "ANALYSIS(a)"  "|" "DONE(d)")
         (sequence "ALLOCATE(l/!)" "WAITING(w@/!)"  "|" "CANCELLED(c@/!)")))
 
 ;; effort estimates
@@ -413,7 +456,7 @@
 
 (setq org-agenda-custom-commands
       (quote (
-              ("1" "Work Agenda"
+              (" " "Agenda"
                ((agenda "" nil)
                 (todo "TODO"
                       ((org-agenda-overriding-header "Tasks to Refile")
@@ -423,6 +466,10 @@
                       ((org-agenda-overriding-header "RUNNING Tasks")))
                 (todo "ANALYSIS"
                       ((org-agenda-overriding-header "ANALYSIS Tasks")))
+                (tags-todo "PROJECT+TODO=\"NEXT\""
+                           ((org-agenda-overriding-header "Unscheduled NEXT Tasks")
+                            (org-agenda-skip-function '(org-agenda-skip-entry-if 'scheduled))
+                            (org-tags-match-list-sublevels 'indented)))
                 (tags-todo "PROJECT+TODO=\"NEXT\""
                            ((org-agenda-overriding-header "NEXT Project Tasks")
                             (org-tags-match-list-sublevels 'indented)))
@@ -439,34 +486,7 @@
                            ((org-agenda-overriding-header "Unscheduled TODO Project Tasks")
                             (org-tags-match-list-sublevels 'indented)
                             (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
-                )
-               ((org-agenda-tag-filter-preset '("+MSD"))))
-              ("2" "Personal Agenda"
-               ((agenda "" nil)
-                (todo "TODO"
-                      ((org-agenda-overriding-header "Tasks to Refile")
-                       (org-agenda-files '("/data/Dropbox/org_files/kb/gtd/inbox.org"))
-                       (org-tags-match-list-sublevels 'indented)))
-                (todo "RUNNING"
-                           ((org-agenda-overriding-header "RUNNING Tasks")))
-                (tags-todo "-PROJECT+TODO=\"NEXT\""
-                           ((org-agenda-overriding-header "NEXT Standalone Tasks")))
-                (tags-todo "LEVEL=1+PROJECT"
-                           ((org-agenda-overriding-header "Projects Overview")
-                            (org-tags-match-list-sublevels 'nil)))
-                (stuck ""
-                       ((org-agenda-overriding-header "Stuck Projects")))
-                (tags-todo "PROJECT+TODO=\"NEXT\""
-                           ((org-agenda-overriding-header "NEXT Project Tasks")
-                            (org-tags-match-list-sublevels 'indented)))
-                (tags-todo "+LEVEL>1/+PROJECT/+TODO"
-                           ((org-agenda-overriding-header "Unscheduled TODO Project Tasks")
-                            (org-tags-match-list-sublevels 'indented)
-                            (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
-                )
-               ((org-agenda-tag-filter-preset '("-MSD"))))
-              )
-             ))
+                )))))
 
 ;; refile
 (setq vsr/kb_files (file-expand-wildcards "/data/Dropbox/org_files/kb/*.org"))
